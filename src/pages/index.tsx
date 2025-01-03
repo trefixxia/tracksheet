@@ -11,6 +11,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface Track {
   id: string;
@@ -31,47 +32,63 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
   const [albums, setAlbums] = useState<Album[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
 
   const searchAlbums = async () => {
     if (!searchQuery.trim()) return;
     
     setLoading(true);
+    setError(null);
     try {
       const response = await fetch(`/api/spotify/search?query=${encodeURIComponent(searchQuery)}`);
+      if (!response.ok) {
+        throw new Error('Failed to search albums. Please try again.');
+      }
       const data = await response.json();
-      setAlbums(data);
+      if (Array.isArray(data)) {
+        setAlbums(data);
+      } else {
+        throw new Error('Invalid response format');
+      }
     } catch (error) {
       console.error('Error searching albums:', error);
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+      setAlbums([]);
     } finally {
       setLoading(false);
     }
   };
 
   const exportToCSV = (album: Album) => {
-    const headers = ['Track Number', 'Track Name', 'Duration'];
-    const rows = album.tracks.map(track => [
-      track.track_number,
-      track.name,
-      new Date(track.duration_ms).toISOString().substr(14, 5)
-    ]);
+    try {
+      const headers = ['Track Number', 'Track Name', 'Duration'];
+      const rows = album.tracks.map(track => [
+        track.track_number,
+        track.name,
+        new Date(track.duration_ms).toISOString().substr(14, 5)
+      ]);
 
-    const csvContent = [
-      `Album: ${album.name}`,
-      `Artist: ${album.artists.map(a => a.name).join(', ')}`,
-      '',
-      headers.join(','),
-      ...rows.map(row => row.join(','))
-    ].join('\n');
+      const csvContent = [
+        `Album: ${album.name}`,
+        `Artist: ${album.artists.map(a => a.name).join(', ')}`,
+        '',
+        headers.join(','),
+        ...rows.map(row => row.join(','))
+      ].join('\n');
 
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `${album.name} - Tracklist.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${album.name} - Tracklist.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error exporting CSV:', error);
+      setError('Failed to export CSV file');
+    }
   };
 
   return (
@@ -91,6 +108,12 @@ export default function Home() {
         </Button>
       </div>
 
+      {error && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <h2 className="text-2xl font-semibold mb-4">Search Results</h2>
@@ -103,7 +126,7 @@ export default function Home() {
                 </CardContent>
               </Card>
             ))
-          ) : (
+          ) : albums.length > 0 ? (
             albums.map((album) => (
               <Card
                 key={album.id}
@@ -127,6 +150,12 @@ export default function Home() {
                 </CardContent>
               </Card>
             ))
+          ) : searchQuery && !loading && (
+            <Card>
+              <CardContent className="p-4">
+                <p className="text-muted-foreground">No albums found</p>
+              </CardContent>
+            </Card>
           )}
         </div>
 
