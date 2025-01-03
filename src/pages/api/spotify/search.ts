@@ -1,19 +1,31 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 
 async function getSpotifyToken() {
-  const response = await fetch('https://accounts.spotify.com/api/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      Authorization: `Basic ${Buffer.from(
-        `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
-      ).toString('base64')}`,
-    },
-    body: 'grant_type=client_credentials',
-  });
+  try {
+    const response = await fetch('https://accounts.spotify.com/api/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        Authorization: `Basic ${Buffer.from(
+          `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`
+        ).toString('base64')}`,
+      },
+      body: 'grant_type=client_credentials',
+    });
 
-  const data = await response.json();
-  return data.access_token;
+    if (!response.ok) {
+      throw new Error(`Token request failed: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    if (!data.access_token) {
+      throw new Error('No access token received');
+    }
+    return data.access_token;
+  } catch (error) {
+    console.error('Error getting Spotify token:', error);
+    throw error;
+  }
 }
 
 export default async function handler(
@@ -26,6 +38,11 @@ export default async function handler(
 
   try {
     const { query } = req.query;
+    
+    if (!query) {
+      return res.status(400).json({ message: 'Query parameter is required' });
+    }
+
     const token = await getSpotifyToken();
 
     const searchResponse = await fetch(
@@ -39,30 +56,58 @@ export default async function handler(
       }
     );
 
+    if (!searchResponse.ok) {
+      throw new Error(`Search request failed: ${searchResponse.statusText}`);
+    }
+
     const searchData = await searchResponse.json();
     
+    if (!searchData.albums?.items) {
+      return res.status(200).json([]);
+    }
+
     // Get tracks for each album
     const albums = await Promise.all(
       searchData.albums.items.map(async (album: any) => {
-        const tracksResponse = await fetch(
-          `https://api.spotify.com/v1/albums/${album.id}/tracks`,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        try {
+          const tracksResponse = await fetch(
+            `https://api.spotify.com/v1/albums/${album.id}/tracks`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!tracksResponse.ok) {
+            console.error(`Failed to fetch tracks for album ${album.id}`);
+            return {
+              ...album,
+              tracks: [],
+            };
           }
-        );
-        const tracksData = await tracksResponse.json();
-        return {
-          ...album,
-          tracks: tracksData.items,
-        };
+
+          const tracksData = await tracksResponse.json();
+          return {
+            ...album,
+            tracks: tracksData.items,
+          };
+        } catch (error) {
+          console.error(`Error fetching tracks for album ${album.id}:`, error);
+          return {
+            ...album,
+            tracks: [],
+          };
+        }
       })
     );
 
     res.status(200).json(albums);
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error('Error in API handler:', error);
+    res.status(500).json({ 
+      message: 'Internal server error',
+      error: error instanceof Error ? error.message : 'Unknown error'
+    });
   }
 }
