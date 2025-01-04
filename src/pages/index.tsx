@@ -223,9 +223,12 @@ export default function Home() {
             <CardHeader>
               <CardTitle className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
                 <span>{selectedAlbum.name}</span>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button variant="outline" onClick={() => exportToText(selectedAlbum)}>
                     Export as Text
+                  </Button>
+                  <Button variant="outline" onClick={() => exportToHTML(selectedAlbum)}>
+                    Export as HTML
                   </Button>
                   <Button onClick={() => exportToCSV(selectedAlbum)}>
                     Export as CSV
