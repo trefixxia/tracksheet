@@ -109,15 +109,14 @@ export default function Home() {
         throw new Error('Failed to generate HTML export');
       }
 
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${album.name} - Tracklist.html`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      const htmlContent = await response.text();
+      const newWindow = window.open('', '_blank');
+      if (newWindow) {
+        newWindow.document.write(htmlContent);
+        newWindow.document.close();
+      } else {
+        setError('Please allow pop-ups to view the HTML export');
+      }
     } catch (error) {
       console.error('Error exporting HTML:', error);
       setError('Failed to export HTML file');
