@@ -91,6 +91,39 @@ export default function Home() {
     }
   };
 
+  const exportToHTML = async (album: Album) => {
+    try {
+      const response = await fetch('/api/spotify/export-html', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          tracks: album.tracks,
+          albumName: album.name,
+          artistName: album.artists.map(a => a.name).join(', ')
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to generate HTML export');
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${album.name} - Tracklist.html`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error exporting HTML:', error);
+      setError('Failed to export HTML file');
+    }
+  };
+
   const exportToText = (album: Album) => {
     try {
       const textContent = [
