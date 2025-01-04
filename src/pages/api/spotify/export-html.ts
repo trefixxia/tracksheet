@@ -69,7 +69,6 @@ export default async function handler(
 </html>`;
 
     res.setHeader('Content-Type', 'text/html');
-    res.setHeader('Content-Disposition', `attachment; filename="${albumName.replace(/[^a-z0-9]/gi, '_')}_tracklist.html"`);
     res.status(200).send(htmlContent);
   } catch (error) {
     console.error('Error generating HTML:', error);
