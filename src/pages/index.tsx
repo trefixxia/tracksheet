@@ -91,6 +91,32 @@ export default function Home() {
     }
   };
 
+  const exportToText = (album: Album) => {
+    try {
+      const textContent = [
+        `Album: ${album.name}`,
+        `Artist: ${album.artists.map(a => a.name).join(', ')}`,
+        '',
+        'Tracklist:',
+        ...album.tracks.map(track => 
+          `${track.track_number}. ${track.name} (${new Date(track.duration_ms).toISOString().substr(14, 5)})`
+        )
+      ].join('\n');
+
+      const blob = new Blob([textContent], { type: 'text/plain;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${album.name} - Tracklist.txt`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error exporting text:', error);
+      setError('Failed to export text file');
+    }
+  };
+
   return (
     <div className="container mx-auto p-4 min-h-screen">
       <h1 className="text-4xl font-bold mb-8 text-center">Music Tracklist Explorer</h1>
