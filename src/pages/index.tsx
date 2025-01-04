@@ -188,11 +188,16 @@ export default function Home() {
         {selectedAlbum && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex justify-between items-center">
+              <CardTitle className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
                 <span>{selectedAlbum.name}</span>
-                <Button onClick={() => exportToCSV(selectedAlbum)}>
-                  Export to CSV
-                </Button>
+                <div className="flex gap-2">
+                  <Button variant="outline" onClick={() => exportToText(selectedAlbum)}>
+                    Export as Text
+                  </Button>
+                  <Button onClick={() => exportToCSV(selectedAlbum)}>
+                    Export as CSV
+                  </Button>
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>
