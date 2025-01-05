@@ -224,8 +224,13 @@ export default function Home() {
         {selectedAlbum && (
           <Card>
             <CardHeader>
-              <CardTitle className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
-                <span>{selectedAlbum.name}</span>
+              <CardTitle className="flex flex-col gap-2">
+                <div>
+                  <span className="block">{selectedAlbum.name}</span>
+                  <span className="text-sm text-muted-foreground">
+                    Released: {selectedAlbum.release_date ? new Date(selectedAlbum.release_date).toLocaleDateString() : 'Release date unknown'}
+                  </span>
+                </div>
                 <div className="flex gap-2 flex-wrap">
                   <Button variant="outline" onClick={() => exportToText(selectedAlbum)}>
                     Export as Text
