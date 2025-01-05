@@ -59,6 +59,7 @@ export default async function handler(
 <body>
     <h1>${albumName}</h1>
     <h2>by ${artistName}</h2>
+    <p style="color: #666; margin-bottom: 1.5rem;">Released: ${releaseDate ? new Date(releaseDate).toLocaleDateString() : 'Release date unknown'}</p>
     <ol>
         ${tracks.map((track: any) => `<li>${track.name}</li>`).join('\n        ')}
     </ol>
