@@ -101,7 +101,8 @@ export default function Home() {
         body: JSON.stringify({
           tracks: album.tracks,
           albumName: album.name,
-          artistName: album.artists.map(a => a.name).join(', ')
+          artistName: album.artists.map(a => a.name).join(', '),
+          releaseDate: album.release_date
         }),
       });
 
