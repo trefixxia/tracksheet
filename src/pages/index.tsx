@@ -26,6 +26,7 @@ interface Album {
   artists: Array<{ name: string }>;
   images: Array<{ url: string }>;
   tracks: Track[];
+  release_date?: string;
 }
 
 export default function Home() {
