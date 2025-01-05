@@ -9,7 +9,7 @@ export default async function handler(
   }
 
   try {
-    const { tracks, albumName, artistName } = req.body;
+    const { tracks, albumName, artistName, releaseDate } = req.body;
 
     if (!tracks || !Array.isArray(tracks)) {
       return res.status(400).json({ error: 'Invalid tracks data' });
