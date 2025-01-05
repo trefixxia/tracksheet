@@ -72,6 +72,7 @@ export default function Home() {
       const csvContent = [
         `Album: ${album.name}`,
         `Artist: ${album.artists.map(a => a.name).join(', ')}`,
+        `Released: ${album.release_date ? new Date(album.release_date).toLocaleDateString() : 'Release date unknown'}`,
         '',
         headers.join(','),
         ...rows.map(row => row.join(','))
