@@ -129,6 +129,7 @@ export default function Home() {
       const textContent = [
         `Album: ${album.name}`,
         `Artist: ${album.artists.map(a => a.name).join(', ')}`,
+        `Released: ${album.release_date ? new Date(album.release_date).toLocaleDateString() : 'Release date unknown'}`,
         '',
         'Tracklist:',
         ...album.tracks.map(track => 
