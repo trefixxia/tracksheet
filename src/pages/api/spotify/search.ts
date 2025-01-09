@@ -70,27 +70,29 @@ export default async function handler(
     const albums = await Promise.all(
       searchData.albums.items.map(async (album: any) => {
         try {
-          const tracksResponse = await fetch(
-            `https://api.spotify.com/v1/albums/${album.id}/tracks`,
-            {
+          let allTracks = [];
+          let nextUrl = `https://api.spotify.com/v1/albums/${album.id}/tracks?limit=50`;
+
+          while (nextUrl) {
+            const tracksResponse = await fetch(nextUrl, {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
-            }
-          );
+            });
 
-          if (!tracksResponse.ok) {
-            console.error(`Failed to fetch tracks for album ${album.id}`);
-            return {
-              ...album,
-              tracks: [],
-            };
+            if (!tracksResponse.ok) {
+              console.error(`Failed to fetch tracks for album ${album.id}`);
+              break;
+            }
+
+            const tracksData = await tracksResponse.json();
+            allTracks = [...allTracks, ...tracksData.items];
+            nextUrl = tracksData.next;
           }
 
-          const tracksData = await tracksResponse.json();
           return {
             ...album,
-            tracks: tracksData.items,
+            tracks: allTracks,
           };
         } catch (error) {
           console.error(`Error fetching tracks for album ${album.id}:`, error);
