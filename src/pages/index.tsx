@@ -12,6 +12,8 @@ import {
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import RatingDialog from '@/components/RatingDialog';
+import TrackRating from '@/components/TrackRating';
 
 interface Track {
   id: string;
@@ -35,6 +37,8 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+  const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
 
   const searchAlbums = async () => {
     if (!searchQuery.trim()) return;
@@ -255,9 +259,11 @@ export default function Home() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[100px]">Track No.</TableHead>
+                    <TableHead className="w-[80px]">Track No.</TableHead>
                     <TableHead>Title</TableHead>
                     <TableHead className="w-[100px]">Duration</TableHead>
+                    <TableHead className="w-[100px]">Rating</TableHead>
+                    <TableHead className="w-[80px]">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -268,6 +274,22 @@ export default function Home() {
                       <TableCell>
                         {new Date(track.duration_ms).toISOString().substr(14, 5)}
                       </TableCell>
+                      <TableCell>
+                        <TrackRating trackId={track.id} />
+                      </TableCell>
+                      <TableCell>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedTrack(track);
+                            setRatingDialogOpen(true);
+                          }}
+                        >
+                          Rate
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -276,6 +298,15 @@ export default function Home() {
           </Card>
         )}
       </div>
+
+      {selectedTrack && selectedAlbum && (
+        <RatingDialog
+          isOpen={ratingDialogOpen}
+          onClose={() => setRatingDialogOpen(false)}
+          track={selectedTrack}
+          album={selectedAlbum}
+        />
+      )}
     </div>
   );
 }

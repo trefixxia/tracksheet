@@ -9,7 +9,37 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model Example {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
+model Album {
+  id          String   @id
+  name        String
+  artist      String
+  releaseDate String?
+  imageUrl    String?
+  tracks      Track[]
+  createdAt   DateTime @default(now())
+}
+
+model Track {
+  id         String   @id
+  name       String
+  albumId    String
+  album      Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  trackNumber Int
+  durationMs Int
+  rating     Rating?
+  createdAt  DateTime @default(now())
+}
+
+model Rating {
+  id           String   @id @default(cuid())
+  trackId      String   @unique
+  track        Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  beat         Int      // Rating out of 20
+  lyrics       Int      // Rating out of 20
+  flow         Int      // Rating out of 20
+  content      Int      // Rating out of 20
+  replayValue  Int      // Rating out of 20
+  notes        String?  @db.Text
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 }
