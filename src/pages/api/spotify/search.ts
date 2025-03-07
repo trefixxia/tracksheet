@@ -70,7 +70,7 @@ export default async function handler(
     const albums = await Promise.all(
       searchData.albums.items.map(async (album: any) => {
         try {
-          let allTracks = [];
+          let allTracks: any[] = [];
           let nextUrl = `https://api.spotify.com/v1/albums/${album.id}/tracks?limit=50`;
 
           while (nextUrl) {
