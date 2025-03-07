@@ -43,6 +43,17 @@ export default function Home() {
   const [albumRating, setAlbumRating] = useState<string | null>(null);
   const [ratedTracks, setRatedTracks] = useState<number>(0);
   const [totalRatableTracks, setTotalRatableTracks] = useState<number>(0);
+  const [loadingAlbumFromId, setLoadingAlbumFromId] = useState(false);
+  
+  // Check for albumId in URL query params
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const albumId = urlParams.get('albumId');
+    
+    if (albumId) {
+      loadAlbumById(albumId);
+    }
+  }, []);
   
   useEffect(() => {
     if (selectedAlbum) {
@@ -53,6 +64,28 @@ export default function Home() {
       setTotalRatableTracks(0);
     }
   }, [selectedAlbum, ratingDialogOpen]);
+  
+  const loadAlbumById = async (albumId: string) => {
+    setLoadingAlbumFromId(true);
+    setError(null);
+    try {
+      const response = await fetch(`/api/spotify/search?albumId=${encodeURIComponent(albumId)}`);
+      if (!response.ok) {
+        throw new Error('Failed to load album. Please try again.');
+      }
+      const data = await response.json();
+      if (data && data.length > 0) {
+        setSelectedAlbum(data[0]);
+      } else {
+        throw new Error('Album not found');
+      }
+    } catch (error) {
+      console.error('Error loading album:', error);
+      setError(error instanceof Error ? error.message : 'An unexpected error occurred');
+    } finally {
+      setLoadingAlbumFromId(false);
+    }
+  };
   
   const fetchAlbumRating = async (albumId: string) => {
     try {

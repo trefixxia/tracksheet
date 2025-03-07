@@ -15,6 +15,7 @@ model Album {
   artist      String
   releaseDate String?
   imageUrl    String?
+  genre       String?
   tracks      Track[]
   createdAt   DateTime @default(now())
 }

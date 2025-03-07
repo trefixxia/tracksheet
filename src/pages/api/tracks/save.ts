@@ -29,6 +29,7 @@ export default async function handler(
           artist: album.artists.map((a: any) => a.name).join(', '),
           releaseDate: album.release_date || null,
           imageUrl: album.images?.[0]?.url || null,
+          genre: album.genres?.length > 0 ? album.genres[0] : null,
         }
       });
     }

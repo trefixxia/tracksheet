@@ -37,38 +37,62 @@ export default async function handler(
   }
 
   try {
-    const { query } = req.query;
+    const { query, albumId } = req.query;
     
-    if (!query) {
-      return res.status(400).json({ message: 'Query parameter is required' });
+    if (!query && !albumId) {
+      return res.status(400).json({ message: 'Either query or albumId parameter is required' });
     }
 
     const token = await getSpotifyToken();
-
-    const searchResponse = await fetch(
-      `https://api.spotify.com/v1/search?q=${encodeURIComponent(
-        query as string
-      )}&type=album&limit=10`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    if (!searchResponse.ok) {
-      throw new Error(`Search request failed: ${searchResponse.statusText}`);
-    }
-
-    const searchData = await searchResponse.json();
     
-    if (!searchData.albums?.items) {
-      return res.status(200).json([]);
+    let albumsToProcess: any[] = [];
+
+    if (albumId) {
+      // Fetch a specific album by ID
+      const albumResponse = await fetch(
+        `https://api.spotify.com/v1/albums/${albumId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!albumResponse.ok) {
+        throw new Error(`Album request failed: ${albumResponse.statusText}`);
+      }
+
+      const albumData = await albumResponse.json();
+      albumsToProcess = [albumData];
+    } else {
+      // Search for albums by query
+      const searchResponse = await fetch(
+        `https://api.spotify.com/v1/search?q=${encodeURIComponent(
+          query as string
+        )}&type=album&limit=10`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!searchResponse.ok) {
+        throw new Error(`Search request failed: ${searchResponse.statusText}`);
+      }
+
+      const searchData = await searchResponse.json();
+      
+      if (!searchData.albums?.items) {
+        return res.status(200).json([]);
+      }
+      
+      albumsToProcess = searchData.albums.items;
     }
 
     // Get tracks for each album
     const albums = await Promise.all(
-      searchData.albums.items.map(async (album: any) => {
+      albumsToProcess.map(async (album: any) => {
         try {
           let allTracks: any[] = [];
           let nextUrl = `https://api.spotify.com/v1/albums/${album.id}/tracks?limit=50`;
