@@ -204,7 +204,14 @@ export default function Home() {
                     />
                   )}
                   <div>
-                    <h3 className="font-semibold">{album.name}</h3>
+                    <h3 className="font-semibold">
+                      {album.name}
+                      {album.release_date && (
+                        <span className="ml-2 text-sm font-normal text-muted-foreground">
+                          ({new Date(album.release_date).getFullYear()})
+                        </span>
+                      )}
+                    </h3>
                     <p className="text-sm text-muted-foreground">
                       {album.artists.map(a => a.name).join(', ')}
                     </p>
