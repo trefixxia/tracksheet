@@ -44,7 +44,7 @@ export default async function handler(
       
       const totalRatableTracks = album.tracks.filter(track => !track.isSkitOrInterlude).length;
       
-      let albumRating = null;
+      let albumRating: number | null = null;
       if (ratedTracks.length > 0) {
         const totalPoints = ratedTracks.reduce((sum, track) => {
           if (track.rating) {
