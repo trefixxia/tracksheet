@@ -10,7 +10,7 @@ export default async function handler(
   }
 
   try {
-    const { track, album } = req.body;
+    const { track, album, isSkitOrInterlude } = req.body;
 
     if (!track || !album) {
       return res.status(400).json({ message: 'Track and album data are required' });
@@ -46,7 +46,14 @@ export default async function handler(
           albumId: album.id,
           trackNumber: track.track_number,
           durationMs: track.duration_ms,
+          isSkitOrInterlude: isSkitOrInterlude || false,
         }
+      });
+    } else if (isSkitOrInterlude !== undefined) {
+      // Update the isSkitOrInterlude flag if it's provided
+      trackRecord = await prisma.track.update({
+        where: { id: track.id },
+        data: { isSkitOrInterlude }
       });
     }
 

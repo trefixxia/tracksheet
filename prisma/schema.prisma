@@ -20,14 +20,15 @@ model Album {
 }
 
 model Track {
-  id         String   @id
-  name       String
-  albumId    String
-  album      Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
-  trackNumber Int
-  durationMs Int
-  rating     Rating?
-  createdAt  DateTime @default(now())
+  id              String   @id
+  name            String
+  albumId         String
+  album           Album    @relation(fields: [albumId], references: [id], onDelete: Cascade)
+  trackNumber     Int
+  durationMs      Int
+  isSkitOrInterlude Boolean @default(false)
+  rating          Rating?
+  createdAt       DateTime @default(now())
 }
 
 model Rating {

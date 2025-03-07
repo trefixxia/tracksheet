@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/table';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from '@/components/ui/badge';
 import RatingDialog from '@/components/RatingDialog';
 import TrackRating from '@/components/TrackRating';
 
@@ -39,6 +40,40 @@ export default function Home() {
   const [selectedAlbum, setSelectedAlbum] = useState<Album | null>(null);
   const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
   const [selectedTrack, setSelectedTrack] = useState<Track | null>(null);
+  const [albumRating, setAlbumRating] = useState<string | null>(null);
+  const [ratedTracks, setRatedTracks] = useState<number>(0);
+  const [totalRatableTracks, setTotalRatableTracks] = useState<number>(0);
+  
+  useEffect(() => {
+    if (selectedAlbum) {
+      fetchAlbumRating(selectedAlbum.id);
+    } else {
+      setAlbumRating(null);
+      setRatedTracks(0);
+      setTotalRatableTracks(0);
+    }
+  }, [selectedAlbum, ratingDialogOpen]);
+  
+  const fetchAlbumRating = async (albumId: string) => {
+    try {
+      const response = await fetch(`/api/ratings/album-rating?albumId=${albumId}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.albumRating) {
+          setAlbumRating(data.albumRating);
+          setRatedTracks(data.ratedTracks);
+          setTotalRatableTracks(data.totalTracks);
+        } else {
+          setAlbumRating(null);
+          setRatedTracks(0);
+          setTotalRatableTracks(data.totalTracks || 0);
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching album rating:', error);
+      setAlbumRating(null);
+    }
+  };
 
   const searchAlbums = async () => {
     if (!searchQuery.trim()) return;
@@ -236,11 +271,27 @@ export default function Home() {
           <Card>
             <CardHeader>
               <CardTitle className="flex flex-col gap-2">
-                <div>
-                  <span className="block">{selectedAlbum.name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    Released: {selectedAlbum.release_date ? new Date(selectedAlbum.release_date).toLocaleDateString() : 'Release date unknown'}
-                  </span>
+                <div className="flex justify-between items-start">
+                  <div>
+                    <span className="block">{selectedAlbum.name}</span>
+                    <span className="text-sm text-muted-foreground">
+                      Released: {selectedAlbum.release_date ? new Date(selectedAlbum.release_date).toLocaleDateString() : 'Release date unknown'}
+                    </span>
+                  </div>
+                  {albumRating ? (
+                    <div className="flex flex-col items-end">
+                      <Badge className="text-lg px-3 py-1 bg-primary">
+                        {albumRating}/10
+                      </Badge>
+                      <span className="text-xs text-muted-foreground mt-1">
+                        {ratedTracks} of {totalRatableTracks} tracks rated
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">
+                      No tracks rated yet
+                    </span>
+                  )}
                 </div>
                 <div className="flex gap-2 flex-wrap">
                   <Button variant="outline" onClick={() => exportToText(selectedAlbum)}>

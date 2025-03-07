@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 
 interface RatingDialogProps {
   isOpen: boolean;
@@ -24,6 +25,7 @@ export default function RatingDialog({ isOpen, onClose, track, album }: RatingDi
   const [content, setContent] = useState(10);
   const [replayValue, setReplayValue] = useState(10);
   const [notes, setNotes] = useState('');
+  const [isSkitOrInterlude, setIsSkitOrInterlude] = useState(false);
 
   const totalScore = beat + lyrics + flow + content + replayValue;
   const averageScore = totalScore / 5;
@@ -39,6 +41,9 @@ export default function RatingDialog({ isOpen, onClose, track, album }: RatingDi
       
       // Fetch existing rating if available
       fetchRating();
+      
+      // Check if track is a skit/interlude
+      checkIfSkitOrInterlude();
     }
   }, [isOpen, track]);
 
@@ -49,10 +54,33 @@ export default function RatingDialog({ isOpen, onClose, track, album }: RatingDi
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ track, album }),
+        body: JSON.stringify({ 
+          track, 
+          album,
+          isSkitOrInterlude
+        }),
       });
     } catch (error) {
       console.error('Error saving track:', error);
+    }
+  };
+  
+  const toggleSkitOrInterlude = async (value: boolean) => {
+    setIsSkitOrInterlude(value);
+    try {
+      await fetch('/api/tracks/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          track, 
+          album,
+          isSkitOrInterlude: value
+        }),
+      });
+    } catch (error) {
+      console.error('Error updating track skit/interlude status:', error);
     }
   };
 
@@ -79,6 +107,20 @@ export default function RatingDialog({ isOpen, onClose, track, album }: RatingDi
       }
     } catch (error) {
       console.error('Error fetching rating:', error);
+    }
+  };
+  
+  const checkIfSkitOrInterlude = async () => {
+    try {
+      const response = await fetch(`/api/tracks/get?trackId=${track.id}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data && data.isSkitOrInterlude !== undefined) {
+          setIsSkitOrInterlude(data.isSkitOrInterlude);
+        }
+      }
+    } catch (error) {
+      console.error('Error checking if track is skit/interlude:', error);
     }
   };
 
@@ -148,30 +190,45 @@ export default function RatingDialog({ isOpen, onClose, track, album }: RatingDi
         </DialogHeader>
         
         <div className="space-y-4 py-4">
-          {renderSlider(beat, setBeat, "Beat")}
-          {renderSlider(lyrics, setLyrics, "Lyrics")}
-          {renderSlider(flow, setFlow, "Flow")}
-          {renderSlider(content, setContent, "Content")}
-          {renderSlider(replayValue, setReplayValue, "Replay Value")}
-          
-          <div className="pt-2">
-            <Label htmlFor="notes">Notes</Label>
-            <Textarea
-              id="notes"
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Add your thoughts about this track..."
-              className="mt-1"
+          <div className="flex items-center justify-between">
+            <Label htmlFor="skit-toggle" className="text-sm font-medium">
+              Mark as Skit/Interlude (No Rating Required)
+            </Label>
+            <Switch
+              id="skit-toggle"
+              checked={isSkitOrInterlude}
+              onCheckedChange={toggleSkitOrInterlude}
             />
           </div>
           
-          <div className="bg-muted p-4 rounded-md mt-4">
-            <div className="text-center">
-              <div className="text-sm text-muted-foreground">Overall Score</div>
-              <div className="text-3xl font-bold">{averageScore.toFixed(1)}/20</div>
-              <div className="text-xs text-muted-foreground mt-1">Total: {totalScore}/100</div>
-            </div>
-          </div>
+          {!isSkitOrInterlude && (
+            <>
+              {renderSlider(beat, setBeat, "Beat")}
+              {renderSlider(lyrics, setLyrics, "Lyrics")}
+              {renderSlider(flow, setFlow, "Flow")}
+              {renderSlider(content, setContent, "Content")}
+              {renderSlider(replayValue, setReplayValue, "Replay Value")}
+              
+              <div className="pt-2">
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Add your thoughts about this track..."
+                  className="mt-1"
+                />
+              </div>
+              
+              <div className="bg-muted p-4 rounded-md mt-4">
+                <div className="text-center">
+                  <div className="text-sm text-muted-foreground">Overall Score</div>
+                  <div className="text-3xl font-bold">{averageScore.toFixed(1)}/20</div>
+                  <div className="text-xs text-muted-foreground mt-1">Total: {totalScore}/100</div>
+                </div>
+              </div>
+            </>
+          )}
           
           {error && (
             <div className="text-destructive text-sm mt-2">{error}</div>
@@ -184,9 +241,11 @@ export default function RatingDialog({ isOpen, onClose, track, album }: RatingDi
         
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>Cancel</Button>
-          <Button onClick={handleSubmit} disabled={loading}>
-            {loading ? 'Saving...' : 'Save Rating'}
-          </Button>
+          {!isSkitOrInterlude && (
+            <Button onClick={handleSubmit} disabled={loading}>
+              {loading ? 'Saving...' : 'Save Rating'}
+            </Button>
+          )}
         </DialogFooter>
       </DialogContent>
     </Dialog>

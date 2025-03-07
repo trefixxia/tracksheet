@@ -9,26 +9,48 @@ interface TrackRatingProps {
 export default function TrackRating({ trackId }: TrackRatingProps) {
   const [rating, setRating] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [isSkitOrInterlude, setIsSkitOrInterlude] = useState(false);
 
   useEffect(() => {
-    const fetchRating = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`/api/ratings/get?trackId=${trackId}`);
-        const data = await response.json();
-        setRating(data);
+        
+        // Check if track is a skit/interlude
+        const trackResponse = await fetch(`/api/tracks/get?trackId=${trackId}`);
+        if (trackResponse.ok) {
+          const trackData = await trackResponse.json();
+          if (trackData && trackData.isSkitOrInterlude !== undefined) {
+            setIsSkitOrInterlude(trackData.isSkitOrInterlude);
+          }
+        }
+        
+        // Fetch rating if not a skit/interlude
+        if (!isSkitOrInterlude) {
+          const ratingResponse = await fetch(`/api/ratings/get?trackId=${trackId}`);
+          const ratingData = await ratingResponse.json();
+          setRating(ratingData);
+        }
       } catch (error) {
-        console.error('Error fetching rating:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchRating();
-  }, [trackId]);
+    fetchData();
+  }, [trackId, isSkitOrInterlude]);
 
   if (loading) {
     return <span className="w-12 h-6 bg-muted animate-pulse rounded-full"></span>;
+  }
+  
+  if (isSkitOrInterlude) {
+    return (
+      <Badge variant="outline" className="bg-gray-100 text-gray-500">
+        Skit/Interlude
+      </Badge>
+    );
   }
 
   if (!rating) {
