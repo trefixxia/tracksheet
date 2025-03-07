@@ -54,8 +54,16 @@ export default function RatedAlbums() {
   useEffect(() => {
     if (albums.length > 0) {
       // Extract unique decades and years for filters
-      const decades = [...new Set(albums.filter(a => a.decade !== null).map(a => a.decade))].sort() as number[];
-      const years = [...new Set(albums.filter(a => a.year !== null).map(a => a.year))].sort() as number[];
+      const decadesSet = new Set<number>();
+      const yearsSet = new Set<number>();
+      
+      albums.forEach(album => {
+        if (album.decade !== null) decadesSet.add(album.decade);
+        if (album.year !== null) yearsSet.add(album.year);
+      });
+      
+      const decades = Array.from(decadesSet).sort() as number[];
+      const years = Array.from(yearsSet).sort() as number[];
       
       setAvailableDecades(decades);
       setAvailableYears(years);

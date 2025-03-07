@@ -72,7 +72,7 @@ export default async function handler(
         imageUrl: album.imageUrl,
         year,
         decade,
-        rating: albumRating ? parseFloat(albumRating.toFixed(1)) : null,
+        rating: albumRating !== null ? parseFloat(albumRating.toFixed(1)) : null,
         ratedTracks: ratedTracks.length,
         totalRatableTracks
       };
