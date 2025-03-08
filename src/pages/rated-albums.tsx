@@ -159,7 +159,13 @@ export default function RatedAlbums() {
   return (
     <div className="container mx-auto p-4 min-h-screen">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">SOUNDRANK</h1>
+        <div className="h-16 w-auto">
+          <img 
+            src="https://assets.co.dev/cb4131ac-f7a4-419e-994c-6a6f2f907c69/soundrank-2f76de4.png"
+            alt="SOUNDRANK"
+            className="h-full w-auto"
+          />
+        </div>
         <Link href="/">
           <Button variant="outline">Back to Search</Button>
         </Link>

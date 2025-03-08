@@ -227,7 +227,15 @@ export default function Home() {
 
   return (
     <div className="container mx-auto p-4 min-h-screen">
-      <h1 className="text-4xl font-bold mb-8 text-center">SOUNDRANK</h1>
+      <div className="flex justify-center mb-10 mt-4">
+        <div className="h-20 w-auto">
+          <img 
+            src="https://assets.co.dev/cb4131ac-f7a4-419e-994c-6a6f2f907c69/soundrank-2f76de4.png"
+            alt="SOUNDRANK"
+            className="h-full w-auto"
+          />
+        </div>
+      </div>
       
       <div className="flex gap-4 mb-8">
         <Input
