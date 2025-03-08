@@ -6,7 +6,7 @@
   --mode: dark;
 }
 
-/* Theme: zinc */
+/* SOUNDRANK Theme */
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -36,30 +36,30 @@
     --radius: 0.5rem
   }
   .dark {
-    --background: 240 10% 3.9%;
+    --background: 260 20% 10%; /* Dark purple/blue background */
     --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
+    --card: 260 20% 12%; /* Slightly lighter card background */
     --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
+    --popover: 260 20% 12%;
     --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 240 5.9% 10%;
-    --secondary: 240 3.7% 15.9%;
+    --primary: 260 80% 60%; /* Vibrant purple for primary elements */
+    --primary-foreground: 0 0% 98%;
+    --secondary: 260 15% 20%; /* Darker purple for secondary elements */
     --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
+    --muted: 260 15% 20%;
     --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
+    --accent: 260 30% 30%; /* Accent purple */
     --accent-foreground: 0 0% 98%;
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 240 4.9% 83.9%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%
+    --border: 260 15% 20%;
+    --input: 260 15% 20%;
+    --ring: 260 80% 60%;
+    --chart-1: 260 80% 60%; /* Purple */
+    --chart-2: 200 80% 60%; /* Blue */
+    --chart-3: 320 80% 60%; /* Pink */
+    --chart-4: 170 80% 60%; /* Teal */
+    --chart-5: 30 80% 60%   /* Orange */
   }
 }
 @layer base {

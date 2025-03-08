@@ -1,8 +1,18 @@
 import React from 'react';
+import Image from 'next/image';
 
 const Logo: React.FC = () => {
   return (
-    <div className="text-xl font-bold">Logo</div>
+    <div className="h-10 w-auto">
+      <Image 
+        src="https://assets.co.dev/cb4131ac-f7a4-419e-994c-6a6f2f907c69/soundrank2-f61f94a.webp"
+        alt="SOUNDRANK"
+        width={180}
+        height={40}
+        className="h-full w-auto"
+        priority
+      />
+    </div>
   );
 };
 

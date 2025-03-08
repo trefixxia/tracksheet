@@ -227,7 +227,7 @@ export default function Home() {
 
   return (
     <div className="container mx-auto p-4 min-h-screen">
-      <h1 className="text-4xl font-bold mb-8 text-center">Music Tracklist Explorer</h1>
+      <h1 className="text-4xl font-bold mb-8 text-center">SOUNDRANK</h1>
       
       <div className="flex gap-4 mb-8">
         <Input

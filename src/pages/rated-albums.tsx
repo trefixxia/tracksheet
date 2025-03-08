@@ -159,7 +159,7 @@ export default function RatedAlbums() {
   return (
     <div className="container mx-auto p-4 min-h-screen">
       <div className="flex justify-between items-center mb-8">
-        <h1 className="text-4xl font-bold">Rated Albums</h1>
+        <h1 className="text-4xl font-bold">SOUNDRANK</h1>
         <Link href="/">
           <Button variant="outline">Back to Search</Button>
         </Link>
