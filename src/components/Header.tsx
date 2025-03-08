@@ -8,9 +8,9 @@ const Header = () => {
 
   return (
     <div className="w-full">
-      <div className="flex justify-between items-center py-5 px-4 sm:px-6 lg:px-8">
-        <div className="cursor-pointer flex-grow-0 mr-6" onClick={() => router.push("/")}>
-          <Logo />
+      <div className="flex flex-col items-center py-5 px-4 sm:px-6 lg:px-8">
+        <div className="cursor-pointer mb-4" onClick={() => router.push("/")}>
+          <Logo height={50} />
         </div>
         <nav className="flex items-center gap-4">
           <Link href="/">
