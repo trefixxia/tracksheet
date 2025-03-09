@@ -10,7 +10,7 @@ const Header = () => {
     <div className="w-full">
       <div className="flex flex-col items-center py-5 px-4 sm:px-6 lg:px-8">
         <div className="cursor-pointer mb-4" onClick={() => router.push("/")}>
-          <Logo height={50} />
+          <Logo width={200} />
         </div>
         <nav className="flex items-center gap-4">
           <Link href="/">
