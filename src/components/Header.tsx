@@ -7,7 +7,7 @@ const Header = () => {
   const router = useRouter();
 
   return (
-    <div className="w-full bg-black">
+    <div className="w-full">
       <div className="flex flex-col items-center py-5 px-4 sm:px-6 lg:px-8">
         <div className="cursor-pointer mb-4" onClick={() => router.push("/")}>
           <Logo width={200} />
